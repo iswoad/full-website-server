@@ -122,7 +122,7 @@ client.connect(err => {
             })
     });
 
-
+    //check admin access
     app.post('/isAdmin', (req, res) => {
         const email = req.body.email;
         adminCollection.find({ adminEmail: email })
