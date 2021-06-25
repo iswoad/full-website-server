@@ -29,6 +29,7 @@ client.connect(err => {
     const serviceCollection = client.db("repairCar").collection("services");
     const bookingCollection = client.db("repairCar").collection("bookings");
     const reviewCollection = client.db("repairCar").collection("reviews");
+    const adminCollection = client.db("repairCar").collection("admins");
 
 
     //create services
@@ -46,7 +47,7 @@ client.connect(err => {
             img: Buffer.from(encImg, 'base64')
         };
 
-        serviceCollection.insertOne({ title, description, image })
+        serviceCollection.insertOne({ title, description, image, charge })
             .then(result => {
                 res.send(result.insertedCount > 0);
             })
@@ -90,21 +91,48 @@ client.connect(err => {
       app.post('/addAReview', (req, res) => {
         const clientN = req.body.client;
         const clientsReview = req.body.clientReview;
-        // const charge = req.body.charge;
-        // const newImg = file.data;
-        // const encImg = newImg.toString('base64');
-
-        // var image = {
-        //     contentType: file.mimetype,
-        //     size: file.size,
-        //     img: Buffer.from(encImg, 'base64')
-        // };
-
         reviewCollection.insertOne({ clientN, clientsReview})
             .then(result => {
                 res.send(result.insertedCount > 0);
             })
     });
+
+    //read reviews
+    app.get('/reviews', (req, res) => {
+        reviewCollection.find({})
+            .toArray((err, documents) => {
+                res.send(documents);
+            })
+    });
+
+    //allbookings for admins
+    app.get('/allBookings', (req, res) => {
+        bookingCollection.find({})
+            .toArray((err, documents) => {
+                res.send(documents);
+            })
+    })
+
+    //add a new admin
+    app.post('/addAdmin', (req, res) => {
+        const adminEmail = req.body.email;
+        adminCollection.insertOne({ adminEmail })
+            .then(result => {
+                res.send(result.insertedCount > 0);
+            })
+    });
+
+
+    app.post('/isAdmin', (req, res) => {
+        const email = req.body.email;
+        adminCollection.find({ adminEmail: email })
+            .toArray((err, admins) => {
+                res.send(admins.length > 0);
+            })
+    })
+
+
+
   });
 
 
